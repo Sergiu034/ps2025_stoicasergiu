@@ -4,11 +4,13 @@ package com.example.demo.controller;
 import com.example.demo.dto.userdto.UserDTO;
 import com.example.demo.errorhandler.UserException;
 import com.example.demo.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +20,16 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    @GetMapping("/home")
+    public String greet(){
+        return "Hello World";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestBody UserDTO userDTO) throws UserException {
+        return userService.verify(userDTO);
+    }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     public ResponseEntity<?> displayAllUserView(){
@@ -54,4 +66,12 @@ public class UserController {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    // GET the token
+    @GetMapping("/csrf-token")
+    public CsrfToken getCsrfToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
+    }
+
+
 }

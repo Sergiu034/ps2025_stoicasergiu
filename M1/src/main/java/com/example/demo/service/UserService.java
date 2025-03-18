@@ -12,9 +12,16 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.validator.UserFieldValidator;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +34,14 @@ public class UserService {
     private final RoleRepository roleRepository;
 
     private final UserRepository userRepository;
+
+    @Autowired
+    private JWTService jwtService;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);
 
     public List<UserViewDTO> findAllUserView() {
 
@@ -74,6 +89,7 @@ public class UserService {
         }
 
         User userSave = UserBuilder.generateEntityFromDTO(userDTO, role.get());
+        userSave.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
 
         return userRepository.save(userSave).getId();
     }
@@ -135,5 +151,26 @@ public class UserService {
         return  userList.stream()
                 .map(UserViewBuilder::generateDTOFromEntity)
                 .collect(Collectors.toList());
+    }
+
+    public String verify(UserDTO userDTO) {
+        Authentication authentication =
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getName(), userDTO.getPassword()));
+
+        if(!authentication.isAuthenticated()){
+            return "NOT AUTHENTICATED";
+        }
+
+        return JWTService.generateToken(userDTO.getName());
+    }
+
+    public UserViewDTO  getUserById(Long userId1) throws UserException {
+
+        Optional<User> user = userRepository.findById(userId1);
+
+        if (user.isEmpty()) {
+            throw new UserException("User not found with id field: " + userId1);
+        }
+        return UserViewBuilder.generateDTOFromEntity(user.get());
     }
 }
