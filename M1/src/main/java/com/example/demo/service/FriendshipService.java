@@ -49,6 +49,7 @@ public class FriendshipService {
             throw new UserException("Friendship already exists between these users.");
         }
 
+        friendship.setStatus("pending");
         Friendship savedFriendship = friendshipRepository.save(friendship);
 
         return FriendshipBuilder.generateDTOFrimEntity(savedFriendship);

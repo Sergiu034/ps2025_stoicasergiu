@@ -20,13 +20,13 @@ public class FriendshipController {
     private final FriendshipService friendshipService;
 
     @RequestMapping(value="/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> crateFriendship(@RequestBody FriendshipDTO friendshipDTO) throws UserException {
+    public ResponseEntity<?> crateFriendship(@RequestBody(required = false) FriendshipDTO friendshipDTO) throws UserException {
         FriendshipDTO createdFriendship = friendshipService.createFriendship(friendshipDTO);
         return new ResponseEntity<>(createdFriendship, HttpStatus.CREATED);
     }
 
     @RequestMapping(value="/accept", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> acceptFriendship(@RequestBody FriendshipDTO friendshipDTO) throws UserException {
+    public ResponseEntity<?> acceptFriendship(@RequestBody(required = false) FriendshipDTO friendshipDTO) throws UserException {
         FriendshipDTO acceptedFriendship = friendshipService.acceptFriendship(friendshipDTO);
         return new ResponseEntity<>(acceptedFriendship, HttpStatus.OK);
     }
