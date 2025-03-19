@@ -12,7 +12,7 @@ public class FriendshipBuilder {
         return FriendshipDTO.builder()
                 .id(friendship.getId())
                 .user1Name(friendship.getUser1().getName())
-                .user1Email(friendship.getUser2().getEmail())
+                .user1Email(friendship.getUser1().getEmail())
                 .user2Name(friendship.getUser2().getName())
                 .user2Email(friendship.getUser2().getEmail())
                 .status(friendship.getStatus())
