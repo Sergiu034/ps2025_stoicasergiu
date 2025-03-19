@@ -76,7 +76,6 @@ public class FriendshipService {
         }
 
         friendship.setStatus("accepted");
-
         Friendship updatedFriendship = friendshipRepository.save(friendship);
 
         return FriendshipBuilder.generateDTOFrimEntity(updatedFriendship);
