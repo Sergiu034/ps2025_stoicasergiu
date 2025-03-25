@@ -7,6 +7,8 @@ This repository contains the implementation of a simplified social media platfor
 2. **Posts, Comments & Reactions**: Handles user-generated content and interactions.
 3. **Moderation & Notifications**: Manages content moderation and user notifications.
 
+In addition to the microservices implementation, this repository also includes **documents for the final project**, which was developed using the microservices created throughout the university year.
+
 ## Functionalities
 
 ### Functionality 1: Authentication & Authorization (A1)
@@ -49,3 +51,8 @@ This repository contains the implementation of a simplified social media platfor
   - Create moderator accounts.
 - Users are notified when their post or comment is deleted.
 - Blocked users are informed of their ban and cannot access the application.
+
+## Final Project Documents
+This repository also contains the **documents for my final project**. The final project was created using the microservices developed during the university year, showcasing the integration and application of the concepts learned throughout the course.
+
+
