@@ -23,7 +23,7 @@ public class UserController {
 
     @GetMapping("/home")
     public String greet(){
-        return "Hello World !!";
+        return "Hello World";
     }
 
     @PostMapping("/login")
