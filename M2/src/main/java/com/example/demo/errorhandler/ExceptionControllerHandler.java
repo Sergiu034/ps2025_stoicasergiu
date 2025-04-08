@@ -14,8 +14,8 @@ public class ExceptionControllerHandler {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ExceptionControllerHandler.class);
 
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity<HttpErrorResponse> userException(UserException exception)
+    @ExceptionHandler(PostException.class)
+    public ResponseEntity<HttpErrorResponse> userException(PostException exception)
     {
         LOGGER.error(exception.getMessage());
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());

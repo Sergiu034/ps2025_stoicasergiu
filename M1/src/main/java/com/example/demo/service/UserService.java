@@ -154,15 +154,19 @@ public class UserService {
     }
 
     public String verify(UserDTO userDTO) {
-        Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getName(), userDTO.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword())
+        );
 
-        if(!authentication.isAuthenticated()){
+        if (!authentication.isAuthenticated()) {
+            System.out.println("❌ Authentication failed for email: " + userDTO.getEmail());
             return "NOT AUTHENTICATED";
         }
 
-        return JWTService.generateToken(userDTO.getName());
+        System.out.println("✅ Authentication successful for email: " + userDTO.getEmail());
+        return JWTService.generateToken(userDTO.getEmail());
     }
+
 
     public UserViewDTO  getUserById(Long userId1) throws UserException {
 

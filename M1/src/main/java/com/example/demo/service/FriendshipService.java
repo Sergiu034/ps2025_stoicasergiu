@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,82 +40,92 @@ public class FriendshipService {
                 .collect(Collectors.toList());
     }
 
-    public FriendshipDTO createFriendship(FriendshipDTO friendshipDTO) throws UserException {
-        Friendship friendship = FriendshipBuilder.generateEntityFromDTO(friendshipDTO, userRepository);
+    public FriendshipDTO createFriendship(String senderEmail, String receiverEmail) throws UserException {
+        User sender = userRepository.findUserByEmail(senderEmail)
+                .orElseThrow(() -> new UserException("Sender not found"));
+        User receiver = userRepository.findUserByEmail(receiverEmail)
+                .orElseThrow(() -> new UserException("Receiver not found"));
+
+        if (sender.equals(receiver)) {
+            throw new UserException("You cannot send a friend request to yourself.");
+        }
 
         Optional<Friendship> existingFriendship = friendshipRepository
-                .findFriendshipByUser1AndUser2(friendship.getUser1(), friendship.getUser2());
+                .findFriendshipByUser1AndUser2(sender, receiver);
 
         if (existingFriendship.isPresent()) {
             throw new UserException("Friendship already exists between these users.");
         }
 
+        Friendship friendship = new Friendship();
+        friendship.setUser1(sender);
+        friendship.setUser2(receiver);
         friendship.setStatus("pending");
-        Friendship savedFriendship = friendshipRepository.save(friendship);
 
-        return FriendshipBuilder.generateDTOFrimEntity(savedFriendship);
+        Friendship saved = friendshipRepository.save(friendship);
+        return FriendshipBuilder.generateDTOFrimEntity(saved);
     }
 
-    public FriendshipDTO acceptFriendship(FriendshipDTO friendshipDTO) throws UserException {
-
-        User user1 = userRepository.findUserByEmail(friendshipDTO.getUser1Email())
-                .orElseThrow(() -> new UserException("User 1 not found"));
-
-        User user2 = userRepository.findUserByEmail(friendshipDTO.getUser2Email())
-                .orElseThrow(() -> new UserException("User 2 not found"));
+    public FriendshipDTO acceptFriendship(String receiverEmail, String senderEmail) throws UserException {
+        User receiver = userRepository.findUserByEmail(receiverEmail)
+                .orElseThrow(() -> new UserException("Receiver not found"));
+        User sender = userRepository.findUserByEmail(senderEmail)
+                .orElseThrow(() -> new UserException("Sender not found"));
 
         Optional<Friendship> friendshipOpt = friendshipRepository
-                .findFriendshipByUser1AndUser2(user1, user2);
+                .findFriendshipByUser1AndUser2(sender, receiver);
 
-        if (friendshipOpt.isEmpty()) {
-            throw new UserException("Friendship not found between these users.");
-        }
+        Friendship friendship = friendshipOpt.orElseThrow(() ->
+                new UserException("Friendship not found"));
 
-        Friendship friendship = friendshipOpt.get();
         if (!"pending".equals(friendship.getStatus())) {
-            throw new UserException("This friendship is not pending and cannot be accepted.");
+            throw new UserException("Only pending friendships can be accepted.");
         }
 
         friendship.setStatus("accepted");
-        Friendship updatedFriendship = friendshipRepository.save(friendship);
-
-        return FriendshipBuilder.generateDTOFrimEntity(updatedFriendship);
+        Friendship updated = friendshipRepository.save(friendship);
+        return FriendshipBuilder.generateDTOFrimEntity(updated);
     }
 
-    public void deleteFriendship(FriendshipDTO friendshipDTO) throws UserException {
+    public void declineFriendship(String receiverEmail, String senderEmail) throws UserException {
+        User receiver = userRepository.findUserByEmail(receiverEmail)
+                .orElseThrow(() -> new UserException("Receiver not found"));
 
-        User user1 = userRepository.findUserByEmail(friendshipDTO.getUser1Email())
-                .orElseThrow(() -> new UserException("User 1 not found"));
-
-        User user2 = userRepository.findUserByEmail(friendshipDTO.getUser2Email())
-                .orElseThrow(() -> new UserException("User 2 not found"));
+        User sender = userRepository.findUserByEmail(senderEmail)
+                .orElseThrow(() -> new UserException("Sender not found"));
 
         Optional<Friendship> friendshipOpt = friendshipRepository
-                .findFriendshipByUser1AndUser2(user1, user2);
+                .findFriendshipByUser1AndUser2(sender, receiver);
 
-        if (friendshipOpt.isEmpty()) {
-            throw new UserException("Friendship not found between these users.");
-        }
+        Friendship friendship = friendshipOpt.orElseThrow(() ->
+                new UserException("Friendship not found"));
 
-        Friendship friendship = friendshipOpt.get();
-
-        this.friendshipRepository.delete(friendship);
+        friendshipRepository.delete(friendship);
     }
 
-    public List<FriendshipDTO> getFriendshipByUser(Long userId) {
+    public List<FriendshipDTO> getFriendshipByUser(String email) throws UserException {
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UserException("User not found"));
 
-        User user = userRepository.findById(userId)
-                .orElse(null);
-
-        if (user == null) {
-            System.out.println("User not found");
-        }
-
-        List<Friendship> friendships = friendshipRepository
-                .findByUser1OrUser2(user, user);
+        List<Friendship> friendships = friendshipRepository.findByUser1OrUser2(user, user);
 
         return friendships.stream()
                 .map(FriendshipBuilder::generateDTOFrimEntity)
                 .collect(Collectors.toList());
+    }
+
+    public List<String> getFriendEmails(String userEmail) throws UserException {
+        List<FriendshipDTO> friendships = getFriendshipByUser(userEmail); // your existing method
+        List<String> emails = new ArrayList<>();
+
+        for (FriendshipDTO f : friendships) {
+            if (f.getUser1Email().equals(userEmail)) {
+                emails.add(f.getUser2Email());
+            } else {
+                emails.add(f.getUser1Email());
+            }
+        }
+
+        return emails;
     }
 }

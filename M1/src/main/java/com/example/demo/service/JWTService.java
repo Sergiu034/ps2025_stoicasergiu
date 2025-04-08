@@ -33,14 +33,14 @@ public class JWTService {
         }
     }
 
-    public static String generateToken(String username) {
+    public static String generateToken(String email) {
 
         Map<String, Object> claims = new HashMap<>();
 
         return Jwts.builder()
                 .claims()
                 .add(claims)
-                .subject(username)
+                .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 2 * 60 * 60 * 1000))
                 .and()

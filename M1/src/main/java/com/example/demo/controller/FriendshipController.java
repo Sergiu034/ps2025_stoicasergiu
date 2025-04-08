@@ -11,6 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.List;
+
 @RestController
 @CrossOrigin
 @RequestMapping(value="/api/friendships")
@@ -19,35 +22,43 @@ public class FriendshipController {
 
     private final FriendshipService friendshipService;
 
-    @RequestMapping(value="/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> crateFriendship(@RequestBody(required = false) FriendshipDTO friendshipDTO) throws UserException {
-        FriendshipDTO createdFriendship = friendshipService.createFriendship(friendshipDTO);
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createFriendship(@RequestBody FriendshipDTO friendshipDTO, Principal principal) throws UserException {
+        String senderEmail = principal.getName();
+        FriendshipDTO createdFriendship = friendshipService.createFriendship(senderEmail, friendshipDTO.getUser2Email());
         return new ResponseEntity<>(createdFriendship, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value="/accept", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> acceptFriendship(@RequestBody(required = false) FriendshipDTO friendshipDTO) throws UserException {
-        FriendshipDTO acceptedFriendship = friendshipService.acceptFriendship(friendshipDTO);
+    @PutMapping(value = "/accept", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> acceptFriendship(@RequestBody FriendshipDTO friendshipDTO, Principal principal) throws UserException {
+        String receiverEmail = principal.getName();
+        FriendshipDTO acceptedFriendship = friendshipService.acceptFriendship(receiverEmail, friendshipDTO.getUser1Email());
         return new ResponseEntity<>(acceptedFriendship, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/decline", method = RequestMethod.DELETE)
-    public ResponseEntity<?> declineFriendship(@RequestBody FriendshipDTO friendshipDTO) throws UserException {
-        friendshipService.deleteFriendship(friendshipDTO);
+
+    @PutMapping(value = "/decline", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> declineFriendship(@RequestBody FriendshipDTO friendshipDTO, Principal principal) throws UserException {
+        String receiverEmail = principal.getName();
+        friendshipService.declineFriendship(receiverEmail, friendshipDTO.getUser1Email());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value="/getAll", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllFriendships() throws UserException {
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getAllFriendships() {
         return new ResponseEntity<>(friendshipService.findAllFriendships(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getByUser/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getFriendshipByUser(@PathVariable Long userId) throws UserException {
-        return new ResponseEntity<>(friendshipService.getFriendshipByUser(userId), HttpStatus.OK);
+    @GetMapping("/my")
+    public ResponseEntity<?> getMyFriendships(Principal principal) throws UserException {
+        String userEmail = principal.getName();
+        return new ResponseEntity<>(friendshipService.getFriendshipByUser(userEmail), HttpStatus.OK);
     }
 
-
-
+    @GetMapping("/my/emails")
+    public ResponseEntity<List<String>> getMyFriendEmails(Principal principal) throws UserException {
+        String userEmail = principal.getName();
+        return new ResponseEntity<>(friendshipService.getFriendEmails(userEmail), HttpStatus.OK);
+    }
 
 }
