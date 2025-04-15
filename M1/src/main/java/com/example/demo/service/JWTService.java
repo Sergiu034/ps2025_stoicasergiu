@@ -54,6 +54,7 @@ public class JWTService {
     }
 
     public String extractUserName(String token) {
+        // extract the username from jwt token
         return extractClaim(token, Claims::getSubject);
     }
 
