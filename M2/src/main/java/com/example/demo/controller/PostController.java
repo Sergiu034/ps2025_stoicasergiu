@@ -31,87 +31,54 @@ public class PostController {
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<?> getPostById(@PathVariable("id") @NonNull Long id,
-                                         @RequestHeader("Authorization") String authHeader) throws PostException {
-        String jwt = authHeader.replace("Bearer ", "");
-        String requesterEmail = JWT.decode(jwt).getSubject();
-
-        return ResponseEntity.ok(postService.findByIdIfVisible(id, requesterEmail, jwt));
+    public ResponseEntity<PostDTO> getPostById(@PathVariable("id") Long id) throws PostException {
+        PostDTO post = postService.findById(id);
+        return ResponseEntity.ok(post);
     }
 
     @GetMapping("/filter/byHashtag/{hashtag}")
-    public ResponseEntity<?> filterByHashtag(@PathVariable("hashtag") String hashtag,
-                                             @RequestHeader("Authorization") String authHeader) {
-        String jwt = authHeader.replace("Bearer ", "");
-        String email = JWT.decode(jwt).getSubject();
-
-        return ResponseEntity.ok(postService.filterByHashtag(hashtag, email, jwt));
+    public ResponseEntity<List<PostDTO>> filterByHashtag(@PathVariable("hashtag") String hashtag) {
+        List<PostDTO> posts = postService.filterByHashtag(hashtag);
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/filter/byText/{text}")
-    public ResponseEntity<?> filterByText(@PathVariable("text") String text,
-                                          @RequestHeader("Authorization") String authHeader) {
-        String jwt = authHeader.replace("Bearer ", "");
-        String email = JWT.decode(jwt).getSubject();
-
-        return ResponseEntity.ok(postService.filterByText(text, email, jwt));
+    public ResponseEntity<List<PostDTO>> filterByText(@PathVariable("text") String text) {
+        List<PostDTO> posts = postService.filterByText(text);
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/filter/byAuthor/{authorEmail}")
-    public ResponseEntity<?> filterByAuthor(@PathVariable("authorEmail") String authorEmail,
-                                            @RequestHeader("Authorization") String authHeader) {
-        String jwt = authHeader.replace("Bearer ", "");
-        String requesterEmail = JWT.decode(jwt).getSubject();
-
-        return ResponseEntity.ok(postService.filterByAuthor(authorEmail, requesterEmail, jwt));
+    public ResponseEntity<List<PostDTO>> filterByAuthor(@PathVariable("authorEmail") String authorEmail) {
+        List<PostDTO> posts = postService.filterByAuthor(authorEmail);
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchPosts(
+    public ResponseEntity<List<PostDTO>> searchPosts(
             @RequestParam(required = false) String text,
             @RequestParam(required = false) String hashtag,
-            @RequestParam(required = false) String authorEmail,
-            @RequestHeader("Authorization") String authHeader
-    ) {
-        String jwt = authHeader.replace("Bearer ", "");
-        String requesterEmail = JWT.decode(jwt).getSubject();
-
-        return ResponseEntity.ok(postService.search(text, hashtag, authorEmail, requesterEmail, jwt));
+            @RequestParam(required = false) String authorEmail) {
+        List<PostDTO> posts = postService.search(text, hashtag, authorEmail);
+        return ResponseEntity.ok(posts);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createPost(@RequestBody PostDTO postDTO,
-                                        @RequestHeader("Authorization") String authHeader){
-
-        String jwt = authHeader.replace("Bearer ", "");
-        String email = JWT.decode(jwt).getSubject();
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(postDTO, email));
+    public ResponseEntity<Long> createPost(@RequestBody PostDTO postDTO){
+        Long createdPostId = postService.createPost(postDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdPostId);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updatePost(@RequestBody PostDTO postDTO,
-                                        @RequestHeader("Authorization") String authHeader) throws PostException {
 
-        String jwt = authHeader.replace("Bearer ", "");
-        String email = JWT.decode(jwt).getSubject();
-        return ResponseEntity.ok(postService.updatePost(postDTO, email));
+    @PutMapping("/update")
+    public ResponseEntity<Long> updatePost(@RequestBody PostDTO postDTO) throws PostException {
+        Long updatedPostId = postService.updatePost(postDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedPostId);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deletePost(@PathVariable("id") Long id,
-                                        @RequestHeader("Authorization") String authHeader) throws PostException {
-        String jwt = authHeader.replace("Bearer ", "");
-        String email = JWT.decode(jwt).getSubject();
-        postService.deletePost(id, email);
+    public ResponseEntity<Void> deletePost(@PathVariable("id") Long id) throws PostException {
+        postService.deletePost(id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/getVisible")
-    public ResponseEntity<List<PostDTO>> getVisiblePosts(@RequestHeader("Authorization") String authHeader) {
-        String jwtToken = authHeader.replace("Bearer ", "");
-        String userEmail = JWT.decode(jwtToken).getSubject();
-
-        List<PostDTO> posts = postService.findVisiblePostsForUser(userEmail, jwtToken);
-        return ResponseEntity.ok(posts);
     }
 }
