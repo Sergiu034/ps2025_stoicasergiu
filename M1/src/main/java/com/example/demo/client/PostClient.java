@@ -115,4 +115,14 @@ public class PostClient {
                 .toBodilessEntity()
                 .block();
     }
+
+    public PostDTO getPostById(Long id, String jwtToken) {
+        return webClientBuilder.build()
+                .get()
+                .uri(postServiceUrl + "/api/post/getById/" + id)
+                .header("Authorization", jwtToken)
+                .retrieve()
+                .bodyToMono(PostDTO.class)
+                .block();
+    }
 }

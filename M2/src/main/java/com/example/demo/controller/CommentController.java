@@ -18,6 +18,12 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CommentDTO> getCommentById(@PathVariable Long id) throws PostException {
+        CommentDTO comment = commentService.getCommentById(id);
+        return ResponseEntity.ok(comment);
+    }
+
     @GetMapping("/getByPost/{postId}")
     public ResponseEntity<List<CommentDTO>> getCommentsByPost(@PathVariable Long postId) throws PostException {
         List<CommentDTO> comments = commentService.getCommentsByPostId(postId);

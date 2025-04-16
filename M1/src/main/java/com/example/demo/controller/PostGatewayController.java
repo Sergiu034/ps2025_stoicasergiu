@@ -82,26 +82,60 @@ public class PostGatewayController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/post")
-    public ResponseEntity<Long> updatePost(@RequestBody PostDTO dto, @RequestHeader("Authorization") String token) {
-        dto.setAuthorEmail(jwtService.extractUserName(token.substring(7)));
+    @PutMapping("/update_post/{id}")
+    public ResponseEntity<Long> updatePost(@PathVariable Long id, @RequestBody PostDTO dto, @RequestHeader("Authorization") String token) {
+        String email = jwtService.extractUserName(token.substring(7));
+        PostDTO originalPost = postClient.getPostById(id, token);
+
+        if (!originalPost.getAuthorEmail().equals(email)) {
+            System.out.println("Post by: " + originalPost.getAuthorEmail());
+            return ResponseEntity.status(403).build();
+        }
+
+        dto.setId(id);
+        dto.setAuthorEmail(email);
         return ResponseEntity.ok(postClient.updatePost(dto, token));
     }
 
-    @DeleteMapping("/post/{id}")
+    @DeleteMapping("/delete_post/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        String email = jwtService.extractUserName(token.substring(7));
+        PostDTO originalPost = postClient.getPostById(id, token);
+
+        if (!originalPost.getAuthorEmail().equals(email)) {
+            System.out.println("Post by :" + originalPost.getAuthorEmail());
+            return ResponseEntity.status(403).build();
+        }
+
         postClient.deletePost(id, token);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/comment")
-    public ResponseEntity<Long> updateComment(@RequestBody CommentDTO dto, @RequestHeader("Authorization") String token) {
-        dto.setAuthorEmail(jwtService.extractUserName(token.substring(7)));
+    @PutMapping("/update_comment/{id}")
+    public ResponseEntity<Long> updateComment(@PathVariable Long id, @RequestBody CommentDTO dto, @RequestHeader("Authorization") String token) {
+        String email = jwtService.extractUserName(token.substring(7));
+        CommentDTO originalComment = commentClient.getCommentById(id, token);
+
+        if (!originalComment.getAuthorEmail().equals(email)) {
+            System.out.println("Comment by: " + originalComment.getAuthorEmail());
+            return ResponseEntity.status(403).build();
+        }
+
+        dto.setId(id);
+        dto.setAuthorEmail(email);
         return ResponseEntity.ok(commentClient.updateComment(dto, token));
     }
 
-    @DeleteMapping("/comment/{id}")
+    @DeleteMapping("/delete_comment/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        String email = jwtService.extractUserName(token.substring(7));
+        CommentDTO originalComment = commentClient.getCommentById(id, token);
+
+        if (!originalComment.getAuthorEmail().equals(email)) {
+            System.out.println("Comment by :" + originalComment.getAuthorEmail());
+            return ResponseEntity.status(403).build();
+        }
+
         commentClient.deleteComment(id, token);
         return ResponseEntity.ok().build();
     }

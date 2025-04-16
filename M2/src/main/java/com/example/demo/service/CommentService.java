@@ -62,4 +62,10 @@ public class CommentService {
         }
         commentRepository.deleteById(id);
     }
+
+    public CommentDTO getCommentById(Long id) throws PostException {
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new PostException("Comment not found with id: " + id));
+        return CommentBuilder.generateDTOFromEntity(comment);
+    }
 }

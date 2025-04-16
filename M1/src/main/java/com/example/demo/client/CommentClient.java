@@ -65,4 +65,14 @@ public class CommentClient {
                 .toBodilessEntity()
                 .block();
     }
+
+    public CommentDTO getCommentById(Long id, String jwtToken) {
+        return webClientBuilder.build()
+                .get()
+                .uri(postServiceUrl + "/api/comment/" + id)
+                .header("Authorization", jwtToken)
+                .retrieve()
+                .bodyToMono(CommentDTO.class)
+                .block();
+    }
 }
