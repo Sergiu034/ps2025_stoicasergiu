@@ -36,7 +36,7 @@ This repository contains the implementation of a simplified social media platfor
 - When a post is displayed individually, the associated comments are shown as well.
 
 ### Functionality 5: Reactions (A3)
-- Users can react to posts and comments (e.g., Like, Love, Haha, Sad, etc.).
+- Users can react to posts and comments (LIKE, LOVE, HAHA, SAD, ANGRY).
 - A user can react only once to each post or comment but can change their reaction later.
 - The total number of reactions, categorized by type, is displayed next to each post or comment.
 - Comments are sorted by reactions, with the most appreciated comments appearing first.
