@@ -16,13 +16,22 @@ public class CommentReaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "author_email", nullable = false)
+    @Column(
+            name = "author_email",
+            nullable = false
+    )
     private String authorEmail;
 
-    @Column(name = "comment_id", nullable = false)
+    @Column(
+            name = "comment_id",
+            nullable = false
+    )
     private Long commentId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "reaction_type", nullable = false)
+    @Column(
+            name = "reaction_type",
+            nullable = false
+    )
     private ReactionType reactionType;
 }

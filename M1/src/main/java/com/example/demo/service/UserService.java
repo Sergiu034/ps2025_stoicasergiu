@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.builder.userbuilder.UserBuilder;
 import com.example.demo.builder.userbuilder.UserViewBuilder;
+import com.example.demo.dto.loginwithnotificationsdto.LoginWithNotificationsDTO;
+import com.example.demo.dto.notificationdto.NotificationDTO;
 import com.example.demo.dto.userdto.UserDTO;
 import com.example.demo.dto.userdto.UserViewDTO;
 import com.example.demo.entity.Role;
@@ -34,6 +36,8 @@ public class UserService {
     private final RoleRepository roleRepository;
 
     private final UserRepository userRepository;
+
+    private final NotificationService notificationService;
 
     @Autowired
     private JWTService jwtService;
@@ -153,18 +157,24 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public String verify(UserDTO userDTO) {
+    public LoginWithNotificationsDTO verify(UserDTO userDTO) throws UserException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword())
         );
 
         if (!authentication.isAuthenticated()) {
             System.out.println("❌ Authentication failed for email: " + userDTO.getEmail());
-            return "NOT AUTHENTICATED";
+            throw new UserException("Invalid credentials");
         }
 
         System.out.println("✅ Authentication successful for email: " + userDTO.getEmail());
-        return JWTService.generateToken(userDTO.getEmail());
+        String token = JWTService.generateToken(userDTO.getEmail());
+
+        List<NotificationDTO> unreadNotifications = notificationService.fetchUnreadNotifications(userDTO.getEmail(), "Bearer " + token);
+
+        notificationService.markAllAsRead(userDTO.getEmail());
+
+        return new LoginWithNotificationsDTO(token, unreadNotifications);
     }
 
 

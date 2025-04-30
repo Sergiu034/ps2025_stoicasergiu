@@ -23,6 +23,9 @@ public class PostReaction {
     private Long postId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "reaction_type", nullable = false)
+    @Column(
+            name = "reaction_type",
+            nullable = false
+    )
     private ReactionType reactionType;
 }

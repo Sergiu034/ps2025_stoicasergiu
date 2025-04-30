@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 
+import com.example.demo.dto.loginwithnotificationsdto.LoginWithNotificationsDTO;
 import com.example.demo.dto.userdto.UserDTO;
 import com.example.demo.errorhandler.UserException;
 import com.example.demo.service.UserService;
@@ -27,8 +28,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserDTO userDTO) throws UserException {
-        return userService.verify(userDTO);
+    public ResponseEntity<LoginWithNotificationsDTO> login(@RequestBody UserDTO userDTO) throws UserException {
+        LoginWithNotificationsDTO response = userService.verify(userDTO);
+        return ResponseEntity.ok(response);
     }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
