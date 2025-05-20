@@ -92,10 +92,18 @@ public class PostAggregatorService {
                 ))
                 .collect(Collectors.toList());
 
+        Map<String, Long> totalReactions = new java.util.HashMap<>(postReactionCounts);
+        for (CommentWithReactionsDTO commentWithReactions : comments) {
+            Map<String, Long> commentReactions = commentWithReactions.getReactions();
+            for (Map.Entry<String, Long> entry : commentReactions.entrySet()) {
+                totalReactions.merge(entry.getKey(), entry.getValue(), Long::sum);
+            }
+        }
+
         return PostWithCommentsAndReactionsDTO.builder()
                 .post(post)
                 .comments(comments)
-                .reactions(postReactionCounts)
+                .reactions(totalReactions)
                 .build();
     }
 

@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.builder.postReactionBuilder.PostReactionBuilder;
 import com.example.demo.dto.postReactionDTO.PostReactionDTO;
 import com.example.demo.entity.PostReaction;
+import com.example.demo.errorhandler.CommentReactionException;
 import com.example.demo.errorhandler.PostReactionException;
 import com.example.demo.repository.PostReactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class PostReactionService {
 
         PostReaction reaction;
         if (optionalReaction.isPresent()) {
-            reaction = optionalReaction.get();
-            reaction.setReactionType(dto.getReactionType());
+            System.out.println("This reaction has already been set");
+            throw new PostReactionException("This reaction has already been set");
         } else {
             reaction = PostReactionBuilder.generateEntityFromDTO(dto);
         }

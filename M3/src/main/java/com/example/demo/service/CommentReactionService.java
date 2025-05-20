@@ -25,8 +25,8 @@ public class CommentReactionService {
 
         CommentReaction reaction;
         if (optionalReaction.isPresent()) {
-            reaction = optionalReaction.get();
-            reaction.setReactionType(dto.getReactionType());
+            System.out.println("This reaction has already been set");
+            throw new CommentReactionException("This reaction has already been set");
         } else {
             reaction = CommentReactionBuilder.generateEntityFromDTO(dto);
         }

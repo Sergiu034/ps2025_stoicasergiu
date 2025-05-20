@@ -39,6 +39,8 @@ public class UserService {
 
     private final NotificationService notificationService;
 
+    private final ModerationService moderationService;
+
     @Autowired
     private JWTService jwtService;
 
@@ -165,6 +167,21 @@ public class UserService {
         if (!authentication.isAuthenticated()) {
             System.out.println("❌ Authentication failed for email: " + userDTO.getEmail());
             throw new UserException("Invalid credentials");
+        }
+
+        Optional<User> userOpt = userRepository.findUserByEmail(userDTO.getEmail());
+        if (userOpt.isEmpty()) {
+            throw new UserException("User not found with email: " + userDTO.getEmail());
+        }
+        User user = userOpt.get();
+
+        if (moderationService.isUserBlocked(user.getId(), null)) {
+            System.out.println("⛔ User is banned: " + userDTO.getEmail());
+
+            List<NotificationDTO> unreadNotifications = notificationService.fetchUnreadNotifications(userDTO.getEmail(), null);
+            notificationService.markAllAsRead(userDTO.getEmail());
+
+            return new LoginWithNotificationsDTO(null, unreadNotifications);
         }
 
         System.out.println("✅ Authentication successful for email: " + userDTO.getEmail());
