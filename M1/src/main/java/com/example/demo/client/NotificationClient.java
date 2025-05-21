@@ -37,4 +37,15 @@ public class NotificationClient {
                 .block();
     }
 
+    public List<NotificationDTO> getAllNotifications(String jwtToken) {
+        return webClientBuilder.build()
+                .get()
+                .uri(notificationServiceUrl + "/api/notifications/getAll")
+                .header("Authorization", jwtToken)
+                .retrieve()
+                .bodyToFlux(NotificationDTO.class)
+                .collectList()
+                .block();
+    }
+
 }

@@ -38,4 +38,11 @@ public class NotificationService {
         unread.forEach(notification -> notification.setRead(true));
         notificationRepository.saveAll(unread);
     }
+
+    public List<NotificationDTO> getAllNotifications() {
+        return notificationRepository.findAll()
+                .stream()
+                .map(NotificationBuilder::generateDTOFromEntity)
+                .collect(Collectors.toList());
+    }
 }

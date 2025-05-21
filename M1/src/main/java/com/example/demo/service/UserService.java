@@ -165,7 +165,7 @@ public class UserService {
         );
 
         if (!authentication.isAuthenticated()) {
-            System.out.println("❌ Authentication failed for email: " + userDTO.getEmail());
+            System.out.println("Authentication failed for email: " + userDTO.getEmail());
             throw new UserException("Invalid credentials");
         }
 
@@ -176,7 +176,7 @@ public class UserService {
         User user = userOpt.get();
 
         if (moderationService.isUserBlocked(user.getId(), null)) {
-            System.out.println("⛔ User is banned: " + userDTO.getEmail());
+            System.out.println("User is banned: " + userDTO.getEmail());
 
             List<NotificationDTO> unreadNotifications = notificationService.fetchUnreadNotifications(userDTO.getEmail(), null);
             notificationService.markAllAsRead(userDTO.getEmail());
@@ -184,11 +184,10 @@ public class UserService {
             return new LoginWithNotificationsDTO(null, unreadNotifications);
         }
 
-        System.out.println("✅ Authentication successful for email: " + userDTO.getEmail());
+        System.out.println("Authentication successful for email: " + userDTO.getEmail());
         String token = JWTService.generateToken(userDTO.getEmail());
 
         List<NotificationDTO> unreadNotifications = notificationService.fetchUnreadNotifications(userDTO.getEmail(), "Bearer " + token);
-
         notificationService.markAllAsRead(userDTO.getEmail());
 
         return new LoginWithNotificationsDTO(token, unreadNotifications);

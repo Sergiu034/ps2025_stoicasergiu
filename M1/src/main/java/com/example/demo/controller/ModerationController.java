@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.client.NotificationClient;
 import com.example.demo.dto.blockeduserdto.BlockedUserDTO;
+import com.example.demo.dto.notificationdto.NotificationDTO;
 import com.example.demo.errorhandler.UserException;
 import com.example.demo.service.ModerationService;
 import lombok.RequiredArgsConstructor;
@@ -8,12 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/gateway/moderation")
 @RequiredArgsConstructor
 public class ModerationController {
 
     private final ModerationService moderationService;
+    private final NotificationClient notificationClient;
 
     @PostMapping("/block")
     public ResponseEntity<Long> blockUser(@RequestBody BlockedUserDTO dto,
@@ -45,5 +50,11 @@ public class ModerationController {
             throws UserException {
         moderationService.deleteComment(commentId, authorEmail, token);
         return new ResponseEntity<>("Comment deleted by moderator.", HttpStatus.OK);
+    }
+
+    @GetMapping("/getAllNotifications")
+    public ResponseEntity<List<NotificationDTO>> getAllNotifications(@RequestHeader("Authorization") String jwtToken) {
+        List<NotificationDTO> notifications = notificationClient.getAllNotifications(jwtToken);
+        return ResponseEntity.ok(notifications);
     }
 }

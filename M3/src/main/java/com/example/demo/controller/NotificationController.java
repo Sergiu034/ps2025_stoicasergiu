@@ -34,4 +34,10 @@ public class NotificationController {
         notificationService.markAllAsRead(userEmail);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<NotificationDTO>> getAllNotifications() {
+        List<NotificationDTO> notifications = notificationService.getAllNotifications();
+        return ResponseEntity.ok(notifications);
+    }
 }
